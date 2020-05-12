@@ -1,0 +1,660 @@
+const QJ = require('qj');
+
+const defaultFormat = /(\d{1,4})/g;
+
+const cards = [
+    {
+        type: 'amex',
+        pattern: /^3[47]/,
+        format: /(\d{1,4})(\d{1,6})?(\d{1,5})?/,
+        length: [15],
+        cvcLength: [4],
+        luhn: true
+    }, {
+        type: 'dankort',
+        pattern: /^5019/,
+        format: defaultFormat,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'hipercard',
+        pattern: /^(384100|384140|384160|606282|637095|637568|60(?!11))/,
+        format: defaultFormat,
+        length: [14, 15, 16, 17, 18, 19],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'dinersclub',
+        pattern: /^(36|38|30[0-5])/,
+        format: /(\d{1,4})(\d{1,6})?(\d{1,4})?/,
+        length: [14],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'discover',
+        pattern: /^(6011|65|64[4-9]|622)/,
+        format: defaultFormat,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'jcb',
+        pattern: /^35/,
+        format: defaultFormat,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'laser',
+        pattern: /^(6706|6771|6709)/,
+        format: defaultFormat,
+        length: [16, 17, 18, 19],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'maestro',
+        pattern: /^(5018|5020|5038|6304|6703|6708|6759|676[1-3])/,
+        format: defaultFormat,
+        length: [12, 13, 14, 15, 16, 17, 18, 19],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'mastercard',
+        pattern: /^(5[1-5]|677189)|^(222[1-9]|2[3-6]\d{2}|27[0-1]\d|2720)/,
+        format: defaultFormat,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'unionpay',
+        pattern: /^62/,
+        format: defaultFormat,
+        length: [16, 17, 18, 19],
+        cvcLength: [3],
+        luhn: false
+    }, {
+        type: 'visaelectron',
+        pattern: /^4(026|17500|405|508|844|91[37])/,
+        format: defaultFormat,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'elo',
+        pattern: /^(4011(78|79)|43(1274|8935)|45(1416|7393|763(1|2))|50(4175|6699|67[0-7][0-9]|9000)|627780|63(6297|6368)|650(03([^4])|04([0-9])|05(0|1)|4(0[5-9]|3[0-9]|8[5-9]|9[0-9])|5([0-2][0-9]|3[0-8])|9([2-6][0-9]|7[0-8])|541|700|720|901)|651652|655000|655021)/,
+        format: defaultFormat,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    }, {
+        type: 'visa',
+        pattern: /^4/,
+        format: defaultFormat,
+        length: [13, 16, 19],
+        cvcLength: [3],
+        luhn: true
+    }
+];
+
+class Payment {
+    constructor() {
+        this.cardFromNumber = null
+        this.cardFromType = null
+        this.cards = null
+        this.defaultFormat = null
+        this.formatBackCardNumber = null
+        this.formatBackExpiry = null
+        this.formatCardNumber = null
+        this.formatExpiry = null
+        this.formatForwardExpiry = null
+        this.formatForwardSlash = null
+        this.formatMonthExpiry = null
+        this.hasTextSelected = null
+        this.luhnCheck = null
+        this.reFormatCardNumber = null
+        this.restrictCVC = null
+        this.restrictCardNumber = null
+        this.restrictCombinedExpiry = null
+        this.restrictExpiry = null
+        this.restrictMonthExpiry = null
+        this.restrictNumeric = null
+        this.restrictYearExpiry = null
+        this.setCardType = null
+    }
+}
+
+
+
+
+
+
+cardFromNumber = function (num) {
+    var card, j, len;
+    num = (num + '').replace(/\D/g, '');
+    for (j = 0, len = cards.length; j < len; j++) {
+        card = cards[j];
+        if (card.pattern.test(num)) {
+            return card;
+        }
+    }
+};
+
+cardFromType = function (type) {
+    var card, j, len;
+    for (j = 0, len = cards.length; j < len; j++) {
+        card = cards[j];
+        if (card.type === type) {
+            return card;
+        }
+    }
+};
+
+luhnCheck = function (num) {
+    var digit, digits, j, len, odd, sum;
+    odd = true;
+    sum = 0;
+    digits = (num + '').split('').reverse();
+    for (j = 0, len = digits.length; j < len; j++) {
+        digit = digits[j];
+        digit = parseInt(digit, 10);
+        if ((odd = !odd)) {
+            digit *= 2;
+        }
+        if (digit > 9) {
+            digit -= 9;
+        }
+        sum += digit;
+    }
+    return sum % 10 === 0;
+};
+
+hasTextSelected = function (target) {
+    var e, error, ref;
+    try {
+        if ((target.selectionStart != null) && target.selectionStart !== target.selectionEnd) {
+            return true;
+        }
+        if ((typeof document !== "undefined" && document !== null ? (ref = document.selection) != null ? ref.createRange : void 0 : void 0) != null) {
+            if (document.selection.createRange().text) {
+                return true;
+            }
+        }
+    } catch (error) {
+        e = error;
+    }
+    return false;
+};
+
+reFormatCardNumber = function (e) {
+    return setTimeout((function (_this) {
+        return function () {
+            var target, value;
+            target = e.target;
+            value = QJ.val(target);
+            value = Payment.fns.formatCardNumber(value);
+            QJ.val(target, value);
+            return QJ.trigger(target, 'change');
+        };
+    })(this));
+};
+
+formatCardNumber = function (maxLength) {
+    return function (e) {
+        var card, digit, i, j, len, length, re, target, upperLength, upperLengths, value;
+        digit = String.fromCharCode(e.which);
+        if (!/^\d+$/.test(digit)) {
+            return;
+        }
+        target = e.target;
+        value = QJ.val(target);
+        card = cardFromNumber(value + digit);
+        length = (value.replace(/\D/g, '') + digit).length;
+        upperLengths = [16];
+        if (card) {
+            upperLengths = card.length;
+        }
+        if (maxLength) {
+            upperLengths = upperLengths.filter(function (x) {
+                return x <= maxLength;
+            });
+        }
+        for (i = j = 0, len = upperLengths.length; j < len; i = ++j) {
+            upperLength = upperLengths[i];
+            if (length >= upperLength && upperLengths[i + 1]) {
+                continue;
+            }
+            if (length >= upperLength) {
+                return;
+            }
+        }
+        if (hasTextSelected(target)) {
+            return;
+        }
+        if (card && card.type === 'amex') {
+            re = /^(\d{4}|\d{4}\s\d{6})$/;
+        } else {
+            re = /(?:^|\s)(\d{4})$/;
+        }
+        if (re.test(value)) {
+            e.preventDefault();
+            QJ.val(target, value + ' ' + digit);
+            return QJ.trigger(target, 'change');
+        }
+    };
+};
+
+formatBackCardNumber = function (e) {
+    var target, value;
+    target = e.target;
+    value = QJ.val(target);
+    if (e.meta) {
+        return;
+    }
+    if (e.which !== 8) {
+        return;
+    }
+    if (hasTextSelected(target)) {
+        return;
+    }
+    if (/\d\s$/.test(value)) {
+        e.preventDefault();
+        QJ.val(target, value.replace(/\d\s$/, ''));
+        return QJ.trigger(target, 'change');
+    } else if (/\s\d?$/.test(value)) {
+        e.preventDefault();
+        QJ.val(target, value.replace(/\s\d?$/, ''));
+        return QJ.trigger(target, 'change');
+    }
+};
+
+formatExpiry = function (e) {
+    var digit, target, val;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+        return;
+    }
+    target = e.target;
+    val = QJ.val(target) + digit;
+    if (/^\d$/.test(val) && (val !== '0' && val !== '1')) {
+        e.preventDefault();
+        QJ.val(target, "0" + val + " / ");
+        return QJ.trigger(target, 'change');
+    } else if (/^\d\d$/.test(val)) {
+        e.preventDefault();
+        QJ.val(target, val + " / ");
+        return QJ.trigger(target, 'change');
+    }
+};
+
+formatMonthExpiry = function (e) {
+    var digit, target, val;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+        return;
+    }
+    target = e.target;
+    val = QJ.val(target) + digit;
+    if (/^\d$/.test(val) && (val !== '0' && val !== '1')) {
+        e.preventDefault();
+        QJ.val(target, "0" + val);
+        return QJ.trigger(target, 'change');
+    } else if (/^\d\d$/.test(val)) {
+        e.preventDefault();
+        QJ.val(target, "" + val);
+        return QJ.trigger(target, 'change');
+    }
+};
+
+formatForwardExpiry = function (e) {
+    var digit, target, val;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+        return;
+    }
+    target = e.target;
+    val = QJ.val(target);
+    if (/^\d\d$/.test(val)) {
+        QJ.val(target, val + " / ");
+        return QJ.trigger(target, 'change');
+    }
+};
+
+formatForwardSlash = function (e) {
+    var slash, target, val;
+    slash = String.fromCharCode(e.which);
+    if (slash !== '/') {
+        return;
+    }
+    target = e.target;
+    val = QJ.val(target);
+    if (/^\d$/.test(val) && val !== '0') {
+        QJ.val(target, "0" + val + " / ");
+        return QJ.trigger(target, 'change');
+    }
+};
+
+formatBackExpiry = function (e) {
+    var target, value;
+    if (e.metaKey) {
+        return;
+    }
+    target = e.target;
+    value = QJ.val(target);
+    if (e.which !== 8) {
+        return;
+    }
+    if (hasTextSelected(target)) {
+        return;
+    }
+    if (/\d(\s|\/)+$/.test(value)) {
+        e.preventDefault();
+        QJ.val(target, value.replace(/\d(\s|\/)*$/, ''));
+        return QJ.trigger(target, 'change');
+    } else if (/\s\/\s?\d?$/.test(value)) {
+        e.preventDefault();
+        QJ.val(target, value.replace(/\s\/\s?\d?$/, ''));
+        return QJ.trigger(target, 'change');
+    }
+};
+
+restrictNumeric = function (e) {
+    var input;
+    if (e.metaKey || e.ctrlKey) {
+        return true;
+    }
+    if (e.which === 32) {
+        return e.preventDefault();
+    }
+    if (e.which === 0) {
+        return true;
+    }
+    if (e.which < 33) {
+        return true;
+    }
+    input = String.fromCharCode(e.which);
+    if (!/[\d\s]/.test(input)) {
+        return e.preventDefault();
+    }
+};
+
+restrictCardNumber = function (maxLength) {
+    return function (e) {
+        var card, digit, length, target, value;
+        target = e.target;
+        digit = String.fromCharCode(e.which);
+        if (!/^\d+$/.test(digit)) {
+            return;
+        }
+        if (hasTextSelected(target)) {
+            return;
+        }
+        value = (QJ.val(target) + digit).replace(/\D/g, '');
+        card = cardFromNumber(value);
+        length = 16;
+        if (card) {
+            length = card.length[card.length.length - 1];
+        }
+        if (maxLength) {
+            length = Math.min(length, maxLength);
+        }
+        if (!(value.length <= length)) {
+            return e.preventDefault();
+        }
+    };
+};
+
+restrictExpiry = function (e, length) {
+    var digit, target, value;
+    target = e.target;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+        return;
+    }
+    if (hasTextSelected(target)) {
+        return;
+    }
+    value = QJ.val(target) + digit;
+    value = value.replace(/\D/g, '');
+    if (value.length > length) {
+        return e.preventDefault();
+    }
+};
+
+restrictCombinedExpiry = function (e) {
+    return restrictExpiry(e, 6);
+};
+
+restrictMonthExpiry = function (e) {
+    return restrictExpiry(e, 2);
+};
+
+restrictYearExpiry = function (e) {
+    return restrictExpiry(e, 4);
+};
+
+restrictCVC = function (e) {
+    var digit, target, val;
+    target = e.target;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+        return;
+    }
+    if (hasTextSelected(target)) {
+        return;
+    }
+    val = QJ.val(target) + digit;
+    if (!(val.length <= 4)) {
+        return e.preventDefault();
+    }
+};
+
+setCardType = function (e) {
+    var allTypes, card, cardType, target, val;
+    target = e.target;
+    val = QJ.val(target);
+    cardType = Payment.fns.cardType(val) || 'unknown';
+    if (!QJ.hasClass(target, cardType)) {
+        allTypes = (function () {
+            var j, len, results;
+            results = [];
+            for (j = 0, len = cards.length; j < len; j++) {
+                card = cards[j];
+                results.push(card.type);
+            }
+            return results;
+        })();
+        QJ.removeClass(target, 'unknown');
+        QJ.removeClass(target, allTypes.join(' '));
+        QJ.addClass(target, cardType);
+        QJ.toggleClass(target, 'identified', cardType !== 'unknown');
+        return QJ.trigger(target, 'payment.cardType', cardType);
+    }
+};
+
+Payment = (function () {
+    function Payment() { }
+
+    Payment.fns = {
+        cardExpiryVal: function (value) {
+            var month, prefix, ref, year;
+            value = value.replace(/\s/g, '');
+            ref = value.split('/', 2), month = ref[0], year = ref[1];
+            if ((year != null ? year.length : void 0) === 2 && /^\d+$/.test(year)) {
+                prefix = (new Date).getFullYear();
+                prefix = prefix.toString().slice(0, 2);
+                year = prefix + year;
+            }
+            month = parseInt(month, 10);
+            year = parseInt(year, 10);
+            return {
+                month: month,
+                year: year
+            };
+        },
+        validateCardNumber: function (num) {
+            var card, ref;
+            num = (num + '').replace(/\s+|-/g, '');
+            if (!/^\d+$/.test(num)) {
+                return false;
+            }
+            card = cardFromNumber(num);
+            if (!card) {
+                return false;
+            }
+            return (ref = num.length, indexOf.call(card.length, ref) >= 0) && (card.luhn === false || luhnCheck(num));
+        },
+        validateCardExpiry: function (month, year) {
+            var currentTime, expiry, prefix, ref, ref1;
+            if (typeof month === 'object' && 'month' in month) {
+                ref = month, month = ref.month, year = ref.year;
+            } else if (typeof month === 'string' && indexOf.call(month, '/') >= 0) {
+                ref1 = Payment.fns.cardExpiryVal(month), month = ref1.month, year = ref1.year;
+            }
+            if (!(month && year)) {
+                return false;
+            }
+            month = QJ.trim(month);
+            year = QJ.trim(year);
+            if (!/^\d+$/.test(month)) {
+                return false;
+            }
+            if (!/^\d+$/.test(year)) {
+                return false;
+            }
+            month = parseInt(month, 10);
+            if (!(month && month <= 12)) {
+                return false;
+            }
+            if (year.length === 2) {
+                prefix = (new Date).getFullYear();
+                prefix = prefix.toString().slice(0, 2);
+                year = prefix + year;
+            }
+            expiry = new Date(year, month);
+            currentTime = new Date;
+            expiry.setMonth(expiry.getMonth() - 1);
+            expiry.setMonth(expiry.getMonth() + 1, 1);
+            return expiry > currentTime;
+        },
+        validateCardCVC: function (cvc, type) {
+            var ref, ref1;
+            cvc = QJ.trim(cvc);
+            if (!/^\d+$/.test(cvc)) {
+                return false;
+            }
+            if (type && cardFromType(type)) {
+                return ref = cvc.length, indexOf.call((ref1 = cardFromType(type)) != null ? ref1.cvcLength : void 0, ref) >= 0;
+            } else {
+                return cvc.length >= 3 && cvc.length <= 4;
+            }
+        },
+        cardType: function (num) {
+            var ref;
+            if (!num) {
+                return null;
+            }
+            return ((ref = cardFromNumber(num)) != null ? ref.type : void 0) || null;
+        },
+        formatCardNumber: function (num) {
+            var card, groups, ref, upperLength;
+            card = cardFromNumber(num);
+            if (!card) {
+                return num;
+            }
+            upperLength = card.length[card.length.length - 1];
+            num = num.replace(/\D/g, '');
+            num = num.slice(0, upperLength);
+            if (card.format.global) {
+                return (ref = num.match(card.format)) != null ? ref.join(' ') : void 0;
+            } else {
+                groups = card.format.exec(num);
+                if (groups == null) {
+                    return;
+                }
+                groups.shift();
+                groups = groups.filter(function (n) {
+                    return n;
+                });
+                return groups.join(' ');
+            }
+        }
+    };
+
+    Payment.restrictNumeric = function (el) {
+        return QJ.on(el, 'keypress', restrictNumeric);
+    };
+
+    Payment.cardExpiryVal = function (el) {
+        return Payment.fns.cardExpiryVal(QJ.val(el));
+    };
+
+    Payment.formatCardCVC = function (el) {
+        Payment.restrictNumeric(el);
+        QJ.on(el, 'keypress', restrictCVC);
+        return el;
+    };
+
+    Payment.formatCardExpiry = function (el) {
+        var month, year;
+        Payment.restrictNumeric(el);
+        if (el.length && el.length === 2) {
+            month = el[0], year = el[1];
+            this.formatCardExpiryMultiple(month, year);
+        } else {
+            QJ.on(el, 'keypress', restrictCombinedExpiry);
+            QJ.on(el, 'keypress', formatExpiry);
+            QJ.on(el, 'keypress', formatForwardSlash);
+            QJ.on(el, 'keypress', formatForwardExpiry);
+            QJ.on(el, 'keydown', formatBackExpiry);
+        }
+        return el;
+    };
+
+    Payment.formatCardExpiryMultiple = function (month, year) {
+        QJ.on(month, 'keypress', restrictMonthExpiry);
+        QJ.on(month, 'keypress', formatMonthExpiry);
+        return QJ.on(year, 'keypress', restrictYearExpiry);
+    };
+
+    Payment.formatCardNumber = function (el, maxLength) {
+        Payment.restrictNumeric(el);
+        QJ.on(el, 'keypress', restrictCardNumber(maxLength));
+        QJ.on(el, 'keypress', formatCardNumber(maxLength));
+        QJ.on(el, 'keydown', formatBackCardNumber);
+        QJ.on(el, 'keyup blur', setCardType);
+        QJ.on(el, 'paste', reFormatCardNumber);
+        QJ.on(el, 'input', reFormatCardNumber);
+        return el;
+    };
+
+    Payment.getCardArray = function () {
+        return cards;
+    };
+
+    Payment.setCardArray = function (cardArray) {
+        cards = cardArray;
+        return true;
+    };
+
+    Payment.addToCardArray = function (cardObject) {
+        return cards.push(cardObject);
+    };
+
+    Payment.removeFromCardArray = function (type) {
+        var key, value;
+        for (key in cards) {
+            value = cards[key];
+            if (value.type === type) {
+                cards.splice(key, 1);
+            }
+        }
+        return true;
+    };
+
+    return Payment;
+
+})();
+
+export default Payment
+

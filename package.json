@@ -43,6 +43,6 @@
   },
   "homepage": "https://github.com/CharlyJazz/svelte-credit-card#readme",
   "dependencies": {
-    "payment": "^2.3.0"
+    "qj": "^2.0.0"
   }
 }
