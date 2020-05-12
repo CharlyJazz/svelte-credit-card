@@ -1,7 +1,8 @@
 # Svelte Credit Card
 
-A component to render a credit card preview, useful for ecommerces.
+A component to render a credit card preview, useful for ecommerces. 
 
+Based in [react-credit-cards](https://github.com/amarofashion/react-credit-cards) A react component with beautiful credit cards for your payment forms.
 
 
 ### Prerequisites
@@ -31,6 +32,8 @@ A example soon
 ## Built With
 
 [Svelte Component Template](https://github.com/sveltejs/component-template) - A base for building shareable Svelte components.
+
+[Payment](https://github.com/jessepollak/payment) - A jQuery-free general purpose library for building credit card forms, validating inputs and formatting numbers.
 
 ## Contributing
 

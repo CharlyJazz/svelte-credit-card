@@ -41,5 +41,8 @@
   "bugs": {
     "url": "https://github.com/CharlyJazz/svelte-credit-card/issues"
   },
-  "homepage": "https://github.com/CharlyJazz/svelte-credit-card#readme"
+  "homepage": "https://github.com/CharlyJazz/svelte-credit-card#readme",
+  "dependencies": {
+    "payment": "^2.3.0"
+  }
 }
