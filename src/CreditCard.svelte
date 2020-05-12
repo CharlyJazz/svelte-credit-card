@@ -1,5 +1,5 @@
 <script>
-  import { onMount, beforeUpdate } from "svelte";
+  import { onMount } from "svelte";
   import Payment from "payment";
 
   // Props
@@ -20,7 +20,15 @@
 
   // Derived Values
 
+  $: {
+    if (prevCVC !== cvc) {
+      focused = "cvc";
+      prevCVC = cvc;
+    }
+  }
+
   $: expiryDerived = (() => {
+    focused = "number";
     const date = typeof expiry === "number" ? expiry.toString() : expiry;
     let month = "";
     let year = "";
@@ -47,11 +55,11 @@
     return `${month}/${year}`;
   })();
 
-  // Lifecycle
-
   // Methods
 
   $: optionsDerived = (() => {
+    focused = "number";
+
     const issuer = Payment.fns.cardType(number) || "unknown";
 
     let maxLength = 16;
@@ -74,16 +82,9 @@
     return preview && issuer ? issuer.toLowerCase() : optionsDerived.issuer;
   })();
 
-  $: {
-    if (prevCVC !== cvc) {
-      focused = "cvc";
-      prevCVC = cvc;
-    } else {
-      focused = "number";
-    }
-  }
-
   $: numberFormatted = (() => {
+    focused = "number";
+
     let maxLength = preview ? 19 : optionsDerived.maxLength;
     let nextNumber =
       typeof number === "number"
@@ -136,6 +137,8 @@
     }
     return nextNumber;
   })();
+
+  // Lifecycle
 
   onMount(() => {
     let newCardArray = [];
