@@ -1,5 +1,5 @@
 {
-  "name": "svelte-credit-card",
+  "name": "svelte-credit-cards",
   "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.js",

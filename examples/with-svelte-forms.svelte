@@ -15,7 +15,6 @@
 <div>
   <label for="name">Name</label>
   <input bind:value={name} name="name" id="name" />
-
 </div>
 <br />
 <div>
