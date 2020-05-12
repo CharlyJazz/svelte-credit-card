@@ -1,23 +1,45 @@
 {
-  "name": "SvelteComponent",
+  "name": "svelte-credit-card",
   "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup -c",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "storybook": "start-storybook -p 6006"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.6",
     "@rollup/plugin-node-resolve": "^6.0.0",
+    "@storybook/addon-actions": "^5.3.17",
+    "@storybook/addon-links": "^5.3.17",
+    "@storybook/addons": "^5.3.17",
+    "@storybook/svelte": "^5.3.18",
+    "babel-loader": "^8.1.0",
     "rollup": "^1.20.0",
     "rollup-plugin-svelte": "^5.0.0",
-    "svelte": "^3.0.0"
+    "svelte": "^3.0.0",
+    "svelte-loader": "^2.13.6"
   },
   "keywords": [
-    "svelte"
+    "svelte",
+    "ui",
+    "component"
   ],
   "files": [
     "src",
     "dist"
-  ]
+  ],
+  "description": "A svelte component to render a credit card",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CharlyJazz/svelte-credit-card.git"
+  },
+  "author": "Carlos Azuaje",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CharlyJazz/svelte-credit-card/issues"
+  },
+  "homepage": "https://github.com/CharlyJazz/svelte-credit-card#readme"
 }
