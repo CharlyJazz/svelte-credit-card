@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import Payment from "./Payment";
+  import Payment from "payment";
 
   // Props
 
