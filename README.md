@@ -31,14 +31,16 @@ A example soon
 
 ## Built With
 
+[react-credit-cards](https://github.com/amarofashion/react-credit-cards) - A react component with beautiful credit cards for your payment forms.
+
 [Svelte Component Template](https://github.com/sveltejs/component-template) - A base for building shareable Svelte components.
 
 [Payment](https://github.com/jessepollak/payment) - A jQuery-free general purpose library for building credit card forms, validating inputs and formatting numbers.
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

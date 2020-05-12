@@ -1,12 +1,11 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, beforeUpdate } from "svelte";
   import Payment from "payment";
 
   // Props
 
   export let focused = "number";
   export let acceptedCards = [];
-  export let callback = null;
   export let cvc = "";
   export let expiry = "";
   export let issuer = "";
@@ -16,32 +15,12 @@
   export let placeholders = { name: "YOUR NAME HERE" };
   export let preview = false;
 
-  // Read only props
+  // Previous Values
+  let prevCVC = "";
 
-  const getOptions = () => {
-    const issuer = Payment.fns.cardType(number) || "unknown";
+  // Derived Values
 
-    let maxLength = 16;
-
-    if (issuer === "amex") {
-      maxLength = 15;
-    } else if (issuer === "dinersclub") {
-      maxLength = 14;
-    } else if (["hipercard", "mastercard", "visa"].includes(issuer)) {
-      maxLength = 19;
-    }
-
-    return {
-      issuer,
-      maxLength
-    };
-  };
-
-  const getIssuer = () => {
-    return preview && issuer ? issuer.toLowerCase() : getOptions().issuer;
-  };
-
-  const getExpiry = () => {
+  $: expiryDerived = (() => {
     const date = typeof expiry === "number" ? expiry.toString() : expiry;
     let month = "";
     let year = "";
@@ -66,10 +45,46 @@
     }
 
     return `${month}/${year}`;
-  };
+  })();
 
-  const getNumber = () => {
-    let maxLength = preview ? 19 : getOptions().maxLength;
+  // Lifecycle
+
+  // Methods
+
+  $: optionsDerived = (() => {
+    const issuer = Payment.fns.cardType(number) || "unknown";
+
+    let maxLength = 16;
+
+    if (issuer === "amex") {
+      maxLength = 15;
+    } else if (issuer === "dinersclub") {
+      maxLength = 14;
+    } else if (["hipercard", "mastercard", "visa"].includes(issuer)) {
+      maxLength = 19;
+    }
+
+    return {
+      issuer,
+      maxLength
+    };
+  })();
+
+  $: issuerDerived = (() => {
+    return preview && issuer ? issuer.toLowerCase() : optionsDerived.issuer;
+  })();
+
+  $: {
+    if (prevCVC !== cvc) {
+      focused = "cvc";
+      prevCVC = cvc;
+    } else {
+      focused = "number";
+    }
+  }
+
+  $: numberFormatted = (() => {
+    let maxLength = preview ? 19 : optionsDerived.maxLength;
     let nextNumber =
       typeof number === "number"
         ? number.toString()
@@ -91,7 +106,7 @@
       nextNumber += "•";
     }
 
-    if (["amex", "dinersclub"].includes(getIssuer())) {
+    if (["amex", "dinersclub"].includes(issuerDerived)) {
       const format = [0, 4, 10];
       const limit = [4, 6, 5];
       nextNumber = `${nextNumber.substr(
@@ -119,13 +134,10 @@
         )}`;
       }
     }
-
     return nextNumber;
-  };
+  })();
 
-  // Methods
-
-  const setCards = () => {
+  onMount(() => {
     let newCardArray = [];
     if (acceptedCards.length) {
       Payment.getCardArray().forEach(d => {
@@ -137,12 +149,6 @@
       newCardArray = newCardArray.concat(Payment.getCardArray());
     }
     Payment.setCardArray(newCardArray);
-  };
-
-  // Lifecycle
-
-  onMount(() => {
-    setCards();
   });
 </script>
 
@@ -222,7 +228,6 @@
     z-index: 20;
   }
   .rccs__card--unknown > div {
-    background: linear-gradient(25deg, #999, #999);
     box-shadow: none;
   }
   .rccs__card--unknown .rccs__issuer {
@@ -436,8 +441,8 @@
 <div
   class={[
     'rccs__card',
-    `rccs__card--${getIssuer()}`,
-    focused === 'cvc' && getIssuer() !== 'amex' ? 'rccs__card--flipped' : ''
+    `rccs__card--${issuerDerived}`,
+    focused === 'cvc' && issuerDerived !== 'amex' ? 'rccs__card--flipped' : ''
   ]
     .join(' ')
     .trim()}>
@@ -449,7 +454,7 @@
         class={['rccs__cvc__front', focused === 'cvc' ? 'rccs--focused' : '']
           .join(' ')
           .trim()}>
-        123
+        {cvc}
       </div>
       <div
         class={[
@@ -460,7 +465,7 @@
         ]
           .join(' ')
           .trim()}>
-        {getNumber()}
+        {numberFormatted}
       </div>
       <div
         class={[
@@ -474,7 +479,7 @@
       </div>
       <div class="rccs__expiry">
         <div class="rccs__expiry__valid">{locale.valid}</div>
-        <div class="rccs__expiry__value">{getExpiry()}</div>
+        <div class="rccs__expiry__value">{expiryDerived}</div>
       </div>
       <div class="rccs__chip" />
     </div>

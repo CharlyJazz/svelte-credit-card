@@ -1,4 +1,4 @@
-import CreditCard from "./CreditCard.svelte";
+import CreditCard from "./";
 
 export default {
     title: "Credit Card",
