@@ -19,13 +19,13 @@ You need svelte-loader or a rollup svelte configuration
 With NPM:
 
 ```bash
-$ npm install svelte-credit-card
+$ npm install svelte-credit-cards
 ```
 
 With Yarn:
 
 ```bash
-$ yarn add svelte-credit-card
+$ yarn add svelte-credit-cards
 ```
 
 
@@ -35,7 +35,7 @@ You can create inputs and send the values as props to the CreditCard component
 
 ``` javascript
 <script>
-  import CreditCard from "../src";
+  import CreditCard from "svelte-credit-cards";
 
   let number = "";
   let name = "";
