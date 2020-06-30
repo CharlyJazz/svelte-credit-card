@@ -17,6 +17,7 @@
 
   // Previous Values
   let prevCVC = "";
+  let prevName = "";
 
   // Derived Values
 
@@ -24,6 +25,13 @@
     if (prevCVC !== cvc) {
       focused = "cvc";
       prevCVC = cvc;
+    }
+  }
+
+  $: {
+    if (prevName !== name) {
+      focused = "name";
+      prevName = name;
     }
   }
 
