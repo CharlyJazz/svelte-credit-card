@@ -5,7 +5,6 @@
   // Props
 
   export let focused = "number";
-  export let acceptedCards = [];
   export let cvc = "";
   export let expiry = "";
   export let issuer = "";
@@ -145,22 +144,6 @@
     }
     return nextNumber;
   })();
-
-  // Lifecycle
-
-  onMount(() => {
-    let newCardArray = [];
-    if (acceptedCards.length) {
-      Payment.getCardArray().forEach(d => {
-        if (acceptedCards.includes(d.type)) {
-          newCardArray.push(d);
-        }
-      });
-    } else {
-      newCardArray = newCardArray.concat(Payment.getCardArray());
-    }
-    Payment.setCardArray(newCardArray);
-  });
 </script>
 
 <style>
