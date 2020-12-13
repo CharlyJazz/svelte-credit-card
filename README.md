@@ -1,6 +1,8 @@
 # Svelte Credit Card
 
 [![npm version](https://badge.fury.io/js/svelte-credit-cards.svg)](https://badge.fury.io/js/svelte-credit-cards)
+![example workflow name](https://github.com/charlyjazz/svelte-credit-card/workflows/health/badge.svg)
+
 
 <img src="https://user-images.githubusercontent.com/12489333/81740061-bb6eba00-9472-11ea-8f50-8862ce5e91be.png">
 
