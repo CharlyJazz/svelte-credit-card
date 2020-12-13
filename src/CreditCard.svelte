@@ -67,7 +67,10 @@
   $: optionsDerived = (() => {
     focused = "number";
 
-    const issuer = Payment.fns.cardType(number) || "unknown";
+    // Jest: Cannot read property 'fns' of undefined
+    const issuer = Payment
+      ? Payment.fns.cardType(number) || "unknown"
+      : "unknown";
 
     let maxLength = 16;
 
@@ -458,7 +461,8 @@
           number.substr(0, 1) !== '•' ? 'rccs--filled' : ''
         ]
           .join(' ')
-          .trim()}>
+          .trim()}
+        data-testid="number">
         {numberFormatted}
       </div>
       <div
@@ -468,12 +472,17 @@
           name ? 'rccs--filled' : ''
         ]
           .join(' ')
-          .trim()}>
+          .trim()}
+        data-testid="name">
         {name || placeholders.name}
       </div>
       <div class="rccs__expiry">
-        <div class="rccs__expiry__valid">{locale.valid}</div>
-        <div class="rccs__expiry__value">{expiryDerived}</div>
+        <div class="rccs__expiry__valid" data-testid="locale_valid">
+          {locale.valid}
+        </div>
+        <div class="rccs__expiry__value" data-testid="expiry">
+          {expiryDerived}
+        </div>
       </div>
       <div class="rccs__chip" />
     </div>
@@ -484,7 +493,8 @@
       <div
         class={['rccs__cvc', focused === 'cvc' ? 'rccs--focused' : '']
           .join(' ')
-          .trim()}>
+          .trim()}
+        data-testid="cvc">
         {cvc}
       </div>
       <div class="rccs__issuer" />
