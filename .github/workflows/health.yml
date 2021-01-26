@@ -21,3 +21,9 @@ jobs:
       - run: npm test
         env:
           CI: true
+      - name: Run Codecov coverage colector
+        uses: codecov/codecov-action@v1.0.15
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/coverage-final.json
+          flags: unittests
