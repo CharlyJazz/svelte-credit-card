@@ -1,22 +1,19 @@
 # Svelte Credit Card
 
 [![npm version](https://badge.fury.io/js/svelte-credit-cards.svg)](https://badge.fury.io/js/svelte-credit-cards)
-![example workflow name](https://github.com/charlyjazz/svelte-credit-card/workflows/health/badge.svg)
-
+![Codecov](https://img.shields.io/codecov/c/github/charlyjazz/svelte-credit-card?label=%20&logo=codecov&logoColor=orange&style=flat-square)
 
 <img src="https://user-images.githubusercontent.com/12489333/81740061-bb6eba00-9472-11ea-8f50-8862ce5e91be.png">
 
-A component to render a credit card preview, useful for ecommerces. 
+A component to render a credit card preview, useful for ecommerces.
 
 Based in [react-credit-cards](https://github.com/amarofashion/react-credit-cards) A react component with beautiful credit cards for your payment forms.
-
 
 ### Prerequisites
 
 You need svelte-loader or a rollup svelte configuration
 
 ### Installing
-
 
 With NPM:
 
@@ -30,39 +27,35 @@ With Yarn:
 $ yarn add svelte-credit-cards
 ```
 
-
 ## Example
 
 You can create inputs and send the values as props to the CreditCard component
 
-``` javascript
+```javascript
 <script>
-  import CreditCard from "svelte-credit-cards";
-
-  let number = "";
-  let name = "";
-  let cvc = "";
-  let expiry = "";
+  import CreditCard from "svelte-credit-cards"; let number = ""; let name = "";
+  let cvc = ""; let expiry = "";
 </script>
 ```
-``` html
+
+```html
 <div>
   <label for="number">Number</label>
-  <input bind:value={number} name="number" id="number" />
+  <input bind:value="{number}" name="number" id="number" />
 </div>
 <div>
   <label for="name">Name</label>
-  <input bind:value={name} name="name" id="name" />
+  <input bind:value="{name}" name="name" id="name" />
 </div>
 <div>
   <label for="cvc">CVC</label>
-  <input bind:value={cvc} name="cvc" id="cvc" maxlength="3" />
+  <input bind:value="{cvc}" name="cvc" id="cvc" maxlength="3" />
 </div>
 <div>
   <label for="expiry">Exp.</label>
-  <input bind:value={expiry} name="expiry" id="expiry" maxlength="4" />
+  <input bind:value="{expiry}" name="expiry" id="expiry" maxlength="4" />
 </div>
-<CreditCard {number} {name} {cvc} {expiry} preview={true} />
+<CreditCard {number} {name} {cvc} {expiry} preview="{true}" />
 ```
 
 ## Built With
