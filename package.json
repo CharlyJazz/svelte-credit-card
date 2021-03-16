@@ -50,6 +50,7 @@
   },
   "homepage": "https://github.com/CharlyJazz/svelte-credit-card#readme",
   "dependencies": {
+    "@semantic-release/git": "^9.0.0",
     "payment": "^2.4.0"
   },
   "contributors": [
