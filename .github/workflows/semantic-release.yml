@@ -24,7 +24,6 @@ jobs:
         with:
           branch: 'master'
           extra_plugins: |
-            @semantic-release/changelog@3.0.0
             @semantic-release/git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
