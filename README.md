@@ -2,6 +2,8 @@
 
 [![npm version](https://badge.fury.io/js/svelte-credit-cards.svg)](https://badge.fury.io/js/svelte-credit-cards)
 ![Codecov](https://img.shields.io/codecov/c/github/charlyjazz/svelte-credit-card?label=%20&logo=codecov&logoColor=orange&style=flat-square)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+
 
 <img src="https://user-images.githubusercontent.com/12489333/81740061-bb6eba00-9472-11ea-8f50-8862ce5e91be.png">
 
