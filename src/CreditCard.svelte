@@ -166,6 +166,7 @@
   .rccs__card--front,
   .rccs__card--back {
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     background: linear-gradient(25deg, #939393, #717171);
     border-radius: 14.5px;
     height: 100%;
